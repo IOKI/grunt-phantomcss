@@ -49,7 +49,12 @@ phantomcss.init({
 
 // Run the test scenarios
 args.test.forEach(function(testSuite) {
-    require(testSuite);
+    var test = require(testSuite),
+        options = {
+            url: args.rootUrl + args.url
+        };
+
+    test(options);
 });
 
 // End tests and compare screenshots
