@@ -13,10 +13,9 @@ var phantomBinaryPath = require('phantomjs').path;
 var runnerPath = path.join(__dirname, '..', 'phantomjs', 'runner.js');
 var phantomCSSPath = path.join(__dirname, '..', 'bower_components', 'phantomcss');
 
-module.exports = function(grunt) {
-    grunt.registerMultiTask('phantomcss', 'CSS Regression Testing', function() {
+module.exports = function (grunt) {
+    grunt.registerMultiTask('phantomcss', 'CSS Regression Testing', function () {
         var done = this.async();
-
         var options = this.options({
             screenshots: 'screenshots',
             results: 'results',
@@ -40,7 +39,7 @@ module.exports = function(grunt) {
         // Create a temporary file for message passing between the task and PhantomJS
         var tempFile = new tmp.File();
 
-        var deleteDiffScreenshots = function() {
+        var deleteDiffScreenshots = function () {
             // Find diff/fail files
             var diffScreenshots = grunt.file.expand([
                 path.join(options.screenshots, '*diff.png'),
@@ -48,12 +47,12 @@ module.exports = function(grunt) {
             ]);
 
             // Delete all of 'em
-            diffScreenshots.forEach(function(filepath) {
+            diffScreenshots.forEach(function (filepath) {
                 grunt.file.delete(filepath);
             });
         };
 
-        var cleanup = function(error) {
+        var cleanup = function (error) {
             // Remove temporary file
             tempFile.unlink();
 
@@ -62,7 +61,7 @@ module.exports = function(grunt) {
 
             // Copy fixtures, diffs, and failure images to the results directory
             var allScreenshots = grunt.file.expand(path.join(options.screenshots, '**.png'));
-            allScreenshots.forEach(function(filepath) {
+            allScreenshots.forEach(function (filepath) {
                 grunt.file.copy(filepath, path.join(options.results, path.basename(filepath)));
             });
 
@@ -82,7 +81,7 @@ module.exports = function(grunt) {
             grunt.log.muted = false;
 
             // Iterate over all lines that haven't already been processed
-            lines.slice(lastLine).some(function(line) {
+            lines.slice(lastLine).some(function (line) {
                 // Get args and method
                 var args = JSON.parse(line);
                 var eventName = args[0];
@@ -109,16 +108,16 @@ module.exports = function(grunt) {
         };
 
         var messageHandlers = {
-            onFail: function(test) {
+            onFail: function (test) {
                 grunt.log.writeln('Visual change found for ' + path.basename(test.filename) + ' (' + test.mismatch + '% mismatch)');
             },
-            onPass: function(test) {
+            onPass: function (test) {
                 grunt.log.writeln('No changes found for ' + path.basename(test.filename));
             },
-            onTimeout: function(test) {
+            onTimeout: function (test) {
                 grunt.log.writeln('Timeout while processing ' + path.basename(test.filename));
             },
-            onComplete: function(allTests, noOfFails, noOfErrors) {
+            onComplete: function (allTests, noOfFails, noOfErrors) {
                 if (allTests.length) {
                     var noOfPasses = allTests.length - failureCount;
                     failureCount = noOfFails + noOfErrors;
@@ -136,7 +135,7 @@ module.exports = function(grunt) {
                     }
                 }
                 else {
-                    grunt.log.ok('Baseline screenshots generated in '+options.screenshots);
+                    grunt.log.ok('Baseline screenshots generated in ' + options.screenshots);
                     grunt.log.warn('Check that the generated screenshots are visually correct and delete them if they aren\'t.');
                 }
             }
@@ -144,9 +143,18 @@ module.exports = function(grunt) {
 
         // Resolve paths for tests
         options.test = [];
-        this.filesSrc.forEach(function(filepath) {
+        options.beforeEach = [];
+        options.testLocation = options.testLocation || '';
+        options.update = grunt.option('update');
+
+        this.filesSrc.forEach(function (filepath) {
             options.test.push(path.resolve(filepath));
         });
+        if (options.requires && options.requires.length) {
+            options.requires.forEach(function (filepath) {
+                options.beforeEach.push(path.resolve(options.testLocation + '/' + filepath));
+            });
+        }
 
         options.screenshots = path.resolve(options.screenshots);
 
@@ -174,7 +182,7 @@ module.exports = function(grunt) {
                 cwd: cwd,
                 stdio: 'inherit'
             }
-        }, function(error, result, code) {
+        }, function (error, result, code) {
             // When Phantom exits check for remaining messages one last time
             checkForMessages(true);
 

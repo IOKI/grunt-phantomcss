@@ -10,14 +10,14 @@ var viewportSize = {
 };
 
 // Messages are sent to the parent by appending them to the tempfile
-var sendMessage = function() {
+var sendMessage = function () {
     fs.write(args.tempFile, JSON.stringify(Array.prototype.slice.call(arguments)) + '\n', 'a');
 };
 
 // Initialise CasperJs
 var phantomCSSPath = args.phantomCSSPath;
-phantom.casperPath = phantomCSSPath+s+'CasperJs';
-phantom.injectJs(phantom.casperPath+s+'bin'+s+'bootstrap.js');
+phantom.casperPath = phantomCSSPath + s + 'CasperJs';
+phantom.injectJs(phantom.casperPath + s + 'bin' + s + 'bootstrap.js');
 
 var casper = require('casper').create({
     viewportSize: viewportSize,
@@ -26,44 +26,54 @@ var casper = require('casper').create({
 });
 
 // Require and initialise PhantomCSS module
-var phantomcss = require(phantomCSSPath+s+'phantomcss.js');
+var phantomcss = require(phantomCSSPath + s + 'phantomcss.js');
+
+var options = {
+    url: args.rootUrl + args.url,
+    update: args.update
+};
 
 phantomcss.init({
     screenshotRoot: args.screenshots,
     failedComparisonsRoot: args.failures,
     libraryRoot: phantomCSSPath, // Give absolute path, otherwise PhantomCSS fails
 
-    onFail: function(test) {
+    onFail: function (test) {
         sendMessage('onFail', test);
     },
-    onPass: function(test) {
+    onPass: function (test) {
         sendMessage('onPass', test);
     },
-    onTimeout: function(test) {
+    onTimeout: function (test) {
         sendMessage('onTimeout', test);
     },
-    onComplete: function(allTests, noOfFails, noOfErrors) {
+    onComplete: function (allTests, noOfFails, noOfErrors) {
         sendMessage('onComplete', allTests, noOfFails, noOfErrors);
     }
 });
 
 // Run the test scenarios
-args.test.forEach(function(testSuite) {
-    var test = require(testSuite),
-        options = {
-            url: args.rootUrl + args.url
-        };
+
+if (args.beforeEach && args.beforeEach.length) {
+    args.beforeEach.forEach(function (module) {
+        var dependency = require(module);
+
+        dependency(options);
+    });
+}
+args.test.forEach(function (testSuite) {
+    var test = require(testSuite);
 
     test(options);
 });
 
 // End tests and compare screenshots
-casper.then(function() {
+casper.then(function () {
     phantomcss.compareAll();
 })
-.then(function() {
-    casper.test.done();
-})
-.run(function() {
-    phantom.exit();
-});
+    .then(function () {
+        casper.test.done();
+    })
+    .run(function () {
+        phantom.exit();
+    });
