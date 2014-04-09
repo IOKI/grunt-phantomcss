@@ -170,7 +170,21 @@ module.exports = function (grunt) {
         }
 
         this.filesSrc.forEach(function (filepath) {
-            options.test.push(path.resolve(filepath));
+            var file = path.join(__dirname, '..', '..', '..', options.screenshots, options.title + '_0.png'),
+                exists = grunt.file.exists(file);
+
+            if (options.run) {
+                if (exists) {
+                    options.test.push(path.resolve(filepath));
+                } else {
+                    grunt.fail('Reference file for test: ' + options.title + ' doesn\'t exist - run test with --update switch');
+                }
+            } else {
+                if (exists) {
+                    grunt.file.delete(file);
+                    options.test.push(path.resolve(filepath));
+                }
+            }
         });
         if (options.requires && options.requires.length) {
             options.requires.forEach(function (filepath) {
