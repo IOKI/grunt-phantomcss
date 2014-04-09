@@ -1,6 +1,6 @@
 {
   "name": "grunt-phantomcss",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "homepage": "https://github.com/chrisgladd/grunt-phantomcss",
   "authors": [
     "Chris Gladd <chris.m.gladd@gmail.com>",

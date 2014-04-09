@@ -55,18 +55,23 @@ phantomcss.init({
 
 // Run the test scenarios
 
-if (args.beforeEach && args.beforeEach.length) {
-    args.beforeEach.forEach(function (module) {
-        var dependency = require(module);
+if (args.run) {
+    if (args.beforeEach && args.beforeEach.length) {
+        args.beforeEach.forEach(function (module) {
+            var dependency = require(module);
 
-        dependency(options);
+            dependency(options);
+        });
+    }
+    args.test.forEach(function (testSuite) {
+        var test = require(testSuite);
+        test(options);
     });
 }
-args.test.forEach(function (testSuite) {
-    var test = require(testSuite);
 
-    test(options);
-});
+if (args.update) {
+    //TODO: remove file and run creating test
+}
 
 // End tests and compare screenshots
 casper.then(function () {

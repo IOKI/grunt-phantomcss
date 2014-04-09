@@ -146,6 +146,28 @@ module.exports = function (grunt) {
         options.beforeEach = [];
         options.testLocation = options.testLocation || '';
         options.update = grunt.option('update');
+        options.run = grunt.option('run');
+
+
+        if (typeof options.rootUrl === 'object') {
+            (function () {
+                var parameters = grunt.file.read(path.join(__dirname, '..', '..', '..', options.rootUrl.src)).match(options.rootUrl.match),
+                    protocol = parameters[1].match('(.*)//(.*)')[1],
+                    app = options.rootUrl.app;
+
+                if (protocol.length) {
+                    options.rootUrl = parameters[1];
+                } else {
+                    options.rootUrl = 'https://' + parameters[1].match('.*//(.*)')[1];
+                }
+
+                options.rootUrl += app;
+            })();
+        }
+
+        if (!options.update && !options.run) {
+            grunt.fail.fatal('You must run phantomCSS either with --update or --run');
+        }
 
         this.filesSrc.forEach(function (filepath) {
             options.test.push(path.resolve(filepath));
