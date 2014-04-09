@@ -30,14 +30,15 @@ var phantomcss = require(phantomCSSPath + s + 'phantomcss.js');
 
 var options = {
     url: args.rootUrl + args.url,
-    update: args.update
+    update: args.update,
+    title: args.title
 };
 
 phantomcss.init({
     screenshotRoot: args.screenshots,
     failedComparisonsRoot: args.failures,
     libraryRoot: phantomCSSPath, // Give absolute path, otherwise PhantomCSS fails
-
+    mismatchTolerance: args.mismatchTolerance,
     onFail: function (test) {
         sendMessage('onFail', test);
     },
