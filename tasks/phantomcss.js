@@ -177,11 +177,13 @@ module.exports = function (grunt) {
                 if (exists) {
                     options.test.push(path.resolve(filepath));
                 } else {
-                    grunt.fail('Reference file for test: ' + options.title + ' doesn\'t exist - run test with --update switch');
+                    grunt.fail.fatal('Reference file for test: ' + options.title + ' doesn\'t exist - run test with --update switch');
                 }
             } else {
                 if (exists) {
                     grunt.file.delete(file);
+                    options.test.push(path.resolve(filepath));
+                } else {
                     options.test.push(path.resolve(filepath));
                 }
             }
