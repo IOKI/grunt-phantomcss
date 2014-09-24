@@ -53,6 +53,7 @@ module.exports = function (grunt) {
         };
 
         var cleanup = function (error) {
+            var regex = new RegExp (options.title, 'g');
             // Remove temporary file
             tempFile.unlink();
 
@@ -61,8 +62,11 @@ module.exports = function (grunt) {
 
             // Copy fixtures, diffs, and failure images to the results directory
             var allScreenshots = grunt.file.expand(path.join(options.screenshots, '**.png'));
+
             allScreenshots.forEach(function (filepath) {
-                grunt.file.copy(filepath, path.join(options.results, path.basename(filepath)));
+                if (regex.test(filepath)){
+                    grunt.file.copy(filepath, path.join(options.results, path.basename(filepath)));
+                }
             });
 
             deleteDiffScreenshots();
