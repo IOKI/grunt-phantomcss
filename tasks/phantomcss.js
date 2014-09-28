@@ -174,23 +174,25 @@ module.exports = function (grunt) {
         }
 
         this.filesSrc.forEach(function (filepath) {
-            var file = path.join(__dirname, '..', '..', '..', options.screenshots, options.title + '_0.png'),
+            var files = grunt.file.expand(path.join(__dirname, '..', '..', '..',options.screenshots, '**.png')),
+                regex = new RegExp (options.title),
                 exists = grunt.file.exists(file);
 
-            if (options.run) {
-                if (exists) {
-                    options.test.push(path.resolve(filepath));
-                } else {
-                    grunt.fail.fatal('Reference file for test: ' + options.title + ' doesn\'t exist - run test with --update switch');
-                }
-            } else {
-                if (exists) {
-                    grunt.file.delete(file);
-                    options.test.push(path.resolve(filepath));
-                } else {
-                    options.test.push(path.resolve(filepath));
-                }
-            }
+            files.forEach(function (file) {
+                var exists = grunt.file.exists(file);
+                if (regex.test(file)){
+                    if (options.run) {
+                        if (!exists) {
+                            grunt.fail.fatal('Reference file for test: ' + options.title + ' doesn\'t exist - run test with --update switch');
+                        }
+                    } else {
+                        if (exists) {
+                            grunt.file.delete(file);
+                        }
+                    }
+                } 
+            });
+            options.test.push(path.resolve(filepath));
         });
         if (options.requires && options.requires.length) {
             options.requires.forEach(function (filepath) {
