@@ -176,10 +176,10 @@ module.exports = function (grunt) {
         this.filesSrc.forEach(function (filepath) {
             var files = grunt.file.expand(path.join(__dirname, '..', '..', '..',options.screenshots, '**.png')),
                 regex = new RegExp (options.title),
-                exists = grunt.file.exists(file);
+                exists;
 
             files.forEach(function (file) {
-                var exists = grunt.file.exists(file);
+                exists = grunt.file.exists(file);
                 if (regex.test(file)){
                     if (options.run) {
                         if (!exists) {
@@ -190,7 +190,7 @@ module.exports = function (grunt) {
                             grunt.file.delete(file);
                         }
                     }
-                } 
+                }
             });
             options.test.push(path.resolve(filepath));
         });
